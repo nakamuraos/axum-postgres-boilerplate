@@ -57,3 +57,5 @@ utoipauto = "0.2.0"
 seaography = { version = "~1.1.4", features = ["with-decimal", "with-chrono", "with-postgres-array", "with-uuid"] }
 async-graphql-axum = "7.0.17"
 async-graphql = "7.0.17"
+jsonwebtoken = "9.3.1"
+base64 = "0.22.1"

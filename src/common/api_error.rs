@@ -25,6 +25,14 @@ pub enum ApiError {
   #[error("Not Found: {0}")]
   NotFound(String),
 
+  /// For errors that occur when a user tries to access a resource they are not allowed to.
+  #[error("Forbidden: {0}")]
+  Forbidden(String),
+
+  /// For errors that occur when a user tries to access a resource they are not authorized to.
+  #[error("Unauthorized: {0}")]
+  Unauthorized(String),
+
   /// Converts from `sea_orm::DbErr`.
   #[error("A database error has occurred.")]
   DatabaseError(#[from] DbErr),
@@ -36,6 +44,7 @@ pub enum ApiError {
 
 #[derive(Serialize, Deserialize)]
 pub struct ApiErrorResp {
+  pub status: u16,
   pub message: String,
 }
 
@@ -58,21 +67,26 @@ impl IntoResponse for ApiError {
       },
       ApiError::InvalidRequest(_) => format!("{}", self),
       ApiError::NotFound(_) => format!("{}", self),
+      ApiError::Forbidden(_) => format!("{}", self),
+      ApiError::Unauthorized(_) => format!("{}", self),
       ApiError::DatabaseError(ref err) => format!("{}", err),
       ApiError::InternalError(ref err) => format!("{}", err),
     };
     error!("{}", error_to_log);
 
-    // Create a generic response to hide specific implementation details.
-    let resp = ApiErrorResp {
-      message: self.to_string(),
-    };
-
     // Determine the appropriate status code.
     let status = match self {
       ApiError::InvalidJsonBody(_) | ApiError::InvalidRequest(_) => StatusCode::BAD_REQUEST,
       ApiError::NotFound(_) => StatusCode::NOT_FOUND,
+      ApiError::Forbidden(_) => StatusCode::FORBIDDEN,
+      ApiError::Unauthorized(_) => StatusCode::UNAUTHORIZED,
       ApiError::DatabaseError(_) | ApiError::InternalError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+    };
+
+    // Create a generic response to hide specific implementation details.
+    let resp = ApiErrorResp {
+      status: status.as_u16(),
+      message: self.to_string(),
     };
 
     (status, Json(resp)).into_response()

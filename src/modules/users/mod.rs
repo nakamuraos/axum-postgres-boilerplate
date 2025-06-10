@@ -41,6 +41,9 @@ pub fn router() -> axum::Router<AppState> {
   operation_id = "usersIndex",
   responses(
       (status = 200, description = "List users", body = [User])
+  ),
+  security(
+    ("bearerAuth" = [])
   )
 )]
 pub async fn index(State(state): State<AppState>) -> Result<Json<Value>, ApiError> {
@@ -81,8 +84,8 @@ pub async fn show(
   State(state): State<AppState>,
   Path(user_id): Path<String>,
 ) -> Result<Json<Value>, ApiError> {
-  let id =
-    Uuid::parse_str(&user_id).map_err(|_| ApiError::InvalidRequest("Invalid user ID".to_string()))?;
+  let id = Uuid::parse_str(&user_id)
+    .map_err(|_| ApiError::InvalidRequest("Invalid user ID".to_string()))?;
   let result = service::show(&state.db.conn, id).await?;
   Ok(Json(result))
 }
@@ -105,8 +108,8 @@ pub async fn update(
   Path(user_id): Path<String>,
   Json(user): Json<UserCreate>,
 ) -> Result<Json<Value>, ApiError> {
-  let id =
-    Uuid::parse_str(&user_id).map_err(|_| ApiError::InvalidRequest("Invalid user ID".to_string()))?;
+  let id = Uuid::parse_str(&user_id)
+    .map_err(|_| ApiError::InvalidRequest("Invalid user ID".to_string()))?;
   let result = service::update(&state.db.conn, id, user.name).await?;
   Ok(Json(result))
 }
@@ -127,7 +130,7 @@ pub async fn destroy(
   State(state): State<AppState>,
   Path(user_id): Path<String>,
 ) -> Result<(), ApiError> {
-  let id =
-    Uuid::parse_str(&user_id).map_err(|_| ApiError::InvalidRequest("Invalid user ID".to_string()))?;
+  let id = Uuid::parse_str(&user_id)
+    .map_err(|_| ApiError::InvalidRequest("Invalid user ID".to_string()))?;
   service::destroy(&state.db.conn, id).await
 }

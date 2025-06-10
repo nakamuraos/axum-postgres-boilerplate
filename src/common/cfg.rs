@@ -19,8 +19,21 @@ pub struct Configuration {
   /// The port to listen on.
   pub app_port: u16,
 
+  /// The swagger endpoint
+  pub swagger_endpoint: String,
+
+  /// The swagger basic auth credentials in the format "username:password".
+  /// This is used to protect the Swagger endpoint with basic authentication.
+  /// If not set, the Swagger endpoint will not be protected.
+  pub swagger_basic_auth: String,
+
   /// The graphql endpoint
   pub graphql_endpoint: String,
+
+  /// The graphql basic auth credentials in the format "username:password".
+  /// This is used to protect the GraphQL endpoint with basic authentication.
+  /// If not set, the GraphQL endpoint will not be protected.
+  pub graphql_basic_auth: String,
 
   /// The DSN for the database. Currently, only PostgreSQL is supported.
   pub db_dsn: String,
@@ -49,9 +62,19 @@ impl Configuration {
             .parse::<u16>()
             .expect("Unable to parse the value of the PORT environment variable. Please make sure it is a valid unsigned 16-bit integer");
 
+    // Swagger endpoint
+    let swagger_endpoint =
+      std::env::var("SWAGGER_ENDPOINT").unwrap_or_else(|_| "/docs".to_string());
+
+    // Swagger basic auth credentials
+    let swagger_basic_auth = std::env::var("SWAGGER_BASIC_AUTH").unwrap_or_else(|_| "".to_string());
+
     // Graphql endpoint
     let graphql_endpoint =
       std::env::var("GRAPHQL_ENDPOINT").unwrap_or_else(|_| "/graphql".to_string());
+
+    // Graphql basic auth credentials
+    let graphql_basic_auth = std::env::var("GRAPHQL_BASIC_AUTH").unwrap_or_else(|_| "".to_string());
 
     let db_dsn = env_var("DATABASE_URL");
 
@@ -73,7 +96,10 @@ impl Configuration {
       env,
       listen_address,
       app_port,
+      swagger_endpoint,
+      swagger_basic_auth,
       graphql_endpoint,
+      graphql_basic_auth,
       db_dsn,
       db_pool_max_size,
       db_timeout,
