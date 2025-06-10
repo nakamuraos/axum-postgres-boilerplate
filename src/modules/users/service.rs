@@ -1,0 +1,58 @@
+use crate::common::api_error::ApiError;
+use crate::modules::users::entities::{self, Entity as User, UserResponse};
+use sea_orm::{ActiveModelTrait, DatabaseConnection, EntityTrait, Set, ColumnTrait, QueryFilter};
+use uuid::Uuid;
+
+pub async fn index(db: &DatabaseConnection) -> Result<serde_json::Value, ApiError> {
+  let users = User::find().all(db).await?;
+  let responses: Vec<UserResponse> = users.into_iter().map(UserResponse::from).collect();
+  Ok(serde_json::json!(responses))
+}
+
+pub async fn create(db: &DatabaseConnection, name: String) -> Result<serde_json::Value, ApiError> {
+  let user = entities::ActiveModel {
+    name: Set(name),
+    ..Default::default()
+  };
+  let user = user.insert(db).await?;
+  let response = UserResponse::from(user);
+  Ok(serde_json::json!(response))
+}
+
+pub async fn show(db: &DatabaseConnection, id: Uuid) -> Result<serde_json::Value, ApiError> {
+    let user = User::find()
+        .filter(entities::Column::Id.eq(id))
+        .one(db)
+        .await?
+        .ok_or_else(|| ApiError::NotFound("User not found".to_string()))?;
+    
+    let response = UserResponse::from(user);
+    Ok(serde_json::json!(response))
+}
+
+pub async fn update(db: &DatabaseConnection, id: Uuid, name: String) -> Result<serde_json::Value, ApiError> {
+    let user = User::find()
+        .filter(entities::Column::Id.eq(id))
+        .one(db)
+        .await?
+        .ok_or_else(|| ApiError::NotFound("User not found".to_string()))?;
+
+    let mut user: entities::ActiveModel = user.into();
+    user.name = Set(name);
+    
+    let user = user.update(db).await?;
+    let response = UserResponse::from(user);
+    Ok(serde_json::json!(response))
+}
+
+pub async fn destroy(db: &DatabaseConnection, id: Uuid) -> Result<(), ApiError> {
+    let user = User::find()
+        .filter(entities::Column::Id.eq(id))
+        .one(db)
+        .await?
+        .ok_or_else(|| ApiError::NotFound("User not found".to_string()))?;
+
+    let user: entities::ActiveModel = user.into();
+    user.delete(db).await?;
+    Ok(())
+}
