@@ -1,14 +1,8 @@
-use async_graphql::{dynamic, http::GraphiQLSource};
-use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
-
-use axum::{response::Html, routing::get, Router};
 use server::common::cfg::Configuration;
 use server::common::telemetry;
 use server::database::Db;
 use tokio::net::TcpListener;
 use tokio::signal;
-
-mod query_root;
 
 #[tokio::main]
 async fn main() {
@@ -37,33 +31,19 @@ async fn main() {
     .await
     .expect("Failed to bind address");
 
-  let conn = db.conn.clone();
   let router = server::router(cfg.clone(), db);
-  let schema = query_root::schema(conn, None, None).unwrap();
-
-  let app = Router::new()
-    .route("/graphql", get(graphql_playground).post(graphql_handler))
-    .with_state(schema.clone())
-    .merge(router);
 
   tracing::info!("Swagger at http://{}{}", cfg.listen_address, "/docs");
-  tracing::info!("GraphQL at http://{}{}", cfg.listen_address, cfg.graphql_endpoint);
+  tracing::info!(
+    "GraphQL at http://{}{}",
+    cfg.listen_address,
+    cfg.graphql_endpoint
+  );
 
-  axum::serve(listener, app)
+  axum::serve(listener, router)
     .with_graceful_shutdown(shutdown_signal())
     .await
     .expect("Failed to start server")
-}
-
-async fn graphql_handler(
-  schema: axum::extract::State<dynamic::Schema>,
-  req: GraphQLRequest,
-) -> GraphQLResponse {
-  schema.execute(req.into_inner()).await.into()
-}
-
-async fn graphql_playground() -> Html<String> {
-  Html(GraphiQLSource::build().endpoint("/graphql").finish())
 }
 
 async fn shutdown_signal() {

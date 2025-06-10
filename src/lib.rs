@@ -1,10 +1,13 @@
 pub mod common;
+pub mod database;
 pub mod doc;
 pub mod modules;
 
-pub mod database;
+mod query_root;
 
-use axum::Router;
+use async_graphql::{dynamic, http::GraphiQLSource};
+use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
+use axum::{response::Html, routing::get, Router};
 use common::{cfg::Config, middleware, telemetry};
 use database::Db;
 use utoipa::OpenApi;
@@ -44,14 +47,21 @@ pub fn router(cfg: Config, db: Db) -> Router {
   // Create the router with the routes.
   let router = modules::router();
 
-  //
+  // Create the API documentation using OpenAPI and Swagger UI.
   let api_doc = SwaggerUi::new("/docs").url("/api-doc/openapi.json", doc::ApiDoc::openapi());
+
+  // Create the GraphQL schema using the query root.
+  let schema = query_root::schema(app_state.db.conn.clone(), None, None).unwrap();
+  let graphql_router = Router::new()
+    .route("/graphql", get(graphql_playground).post(graphql_handler))
+    .with_state(schema.clone());
 
   // Combine all the routes and apply the middleware layers.
   // The order of the layers is important. The first layer is the outermost layer.
   Router::new()
     .merge(router)
     .merge(api_doc)
+    .merge(graphql_router)
     .layer(normalize_path_layer)
     .layer(cors_layer)
     .layer(timeout_layer)
@@ -59,4 +69,15 @@ pub fn router(cfg: Config, db: Db) -> Router {
     .layer(trace_layer)
     .layer(request_id_layer)
     .with_state(app_state)
+}
+
+async fn graphql_handler(
+  schema: axum::extract::State<dynamic::Schema>,
+  req: GraphQLRequest,
+) -> GraphQLResponse {
+  schema.execute(req.into_inner()).await.into()
+}
+
+async fn graphql_playground() -> Html<String> {
+  Html(GraphiQLSource::build().endpoint("/graphql").finish())
 }

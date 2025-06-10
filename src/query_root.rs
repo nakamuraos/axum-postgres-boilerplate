@@ -1,7 +1,8 @@
+use crate::modules::sea_orm_active_enums;
+use crate::modules::users::{self, entities as usersEntities};
 use async_graphql::dynamic::*;
 use sea_orm::DatabaseConnection;
 use seaography::{async_graphql, lazy_static, Builder, BuilderContext};
-use server::modules::users::entities;
 
 lazy_static::lazy_static! { static ref CONTEXT : BuilderContext = BuilderContext :: default () ; }
 
@@ -14,11 +15,11 @@ pub fn schema(
   let mut builder = Builder::new(&CONTEXT, database.clone());
 
   // Register the entities
-  seaography::register_entities!(builder, [entities]);
+  seaography::register_entities!(builder, [usersEntities]);
 
   // Register the active enums
-  builder.register_enumeration::<server::modules::sea_orm_active_enums::MpaaRating>();
-  builder.register_enumeration::<server::modules::users::enums::UserStatus>();
+  builder.register_enumeration::<sea_orm_active_enums::MpaaRating>();
+  builder.register_enumeration::<users::enums::UserStatus>();
 
   // Register the custom scalars
   builder
