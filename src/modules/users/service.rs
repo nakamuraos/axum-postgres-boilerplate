@@ -1,7 +1,9 @@
 use crate::common::api_error::ApiError;
 use crate::modules::users::entities::{self, Entity as User, UserResponse};
+use crate::modules::users::enums::UserStatus;
 use sea_orm::{ActiveModelTrait, DatabaseConnection, EntityTrait, Set, ColumnTrait, QueryFilter};
 use uuid::Uuid;
+use bcrypt::{hash, DEFAULT_COST};
 
 pub async fn index(db: &DatabaseConnection) -> Result<serde_json::Value, ApiError> {
   let users = User::find().all(db).await?;
@@ -9,12 +11,33 @@ pub async fn index(db: &DatabaseConnection) -> Result<serde_json::Value, ApiErro
   Ok(serde_json::json!(responses))
 }
 
-pub async fn create(db: &DatabaseConnection, name: String) -> Result<serde_json::Value, ApiError> {
+pub async fn create(
+  db: &DatabaseConnection, 
+  email: String,
+  password: String,
+  name: String
+) -> Result<serde_json::Value, ApiError> {
+  // Hash password
+  let password_hash = hash(password.as_bytes(), DEFAULT_COST)
+    .map_err(|e| ApiError::InternalError(anyhow::anyhow!("Failed to hash password: {}", e)))?;
+
   let user = entities::ActiveModel {
+    id: Set(Uuid::new_v4()),
+    email: Set(email),
+    password: Set(password_hash),
     name: Set(name),
+    status: Set(UserStatus::Active),
     ..Default::default()
   };
-  let user = user.insert(db).await?;
+
+  let user = user.insert(db).await.map_err(|e| {
+    if e.to_string().contains("duplicate key") {
+      ApiError::InvalidRequest("Email already exists".to_string())
+    } else {
+      ApiError::InternalError(anyhow::anyhow!(e))
+    }
+  })?;
+
   let response = UserResponse::from(user);
   Ok(serde_json::json!(response))
 }

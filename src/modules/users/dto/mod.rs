@@ -11,6 +11,8 @@ pub struct User {
 
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct UserCreate {
+  pub email: String,
+  pub password: String,
   pub name: String,
 }
 

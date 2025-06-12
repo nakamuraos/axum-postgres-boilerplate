@@ -12,6 +12,7 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::common::api_error::ApiError;
+use crate::modules::auth::guards::auth_guard;
 use crate::modules::users::dto::{User, UserCreate};
 use crate::AppState;
 
@@ -32,7 +33,9 @@ pub fn router() -> axum::Router<AppState> {
   // // `GET /users/{users_id}/edit`
   // .edit(|Path(user_id): Path<u64>| async {});
 
-  Router::new().nest("/v1", Router::new().merge(resources))
+  Router::new()
+    .nest("/v1", Router::new().merge(resources))
+    .layer(axum::middleware::from_fn(auth_guard))
 }
 
 #[utoipa::path(
@@ -58,13 +61,16 @@ pub async fn index(State(state): State<AppState>) -> Result<Json<Value>, ApiErro
   request_body = UserCreate,
   responses(
       (status = 200, description = "Create a user", body = User)
+  ),
+  security(
+    ("bearerAuth" = [])
   )
 )]
 pub async fn create(
   State(state): State<AppState>,
   Json(user): Json<UserCreate>,
 ) -> Result<Json<Value>, ApiError> {
-  let result = service::create(&state.db.conn, user.name).await?;
+  let result = service::create(&state.db.conn, user.email, user.password, user.name).await?;
   Ok(Json(result))
 }
 
@@ -78,6 +84,9 @@ pub async fn create(
   responses(
     (status = 200, description = "Get user details", body = User),
     (status = 404, description = "User not found")
+  ),
+  security(
+    ("bearerAuth" = [])
   )
 )]
 pub async fn show(
@@ -101,6 +110,9 @@ pub async fn show(
   responses(
     (status = 200, description = "Update user", body = User),
     (status = 404, description = "User not found")
+  ),
+  security(
+    ("bearerAuth" = [])
   )
 )]
 pub async fn update(
@@ -124,6 +136,9 @@ pub async fn update(
   responses(
     (status = 204, description = "User deleted successfully"),
     (status = 404, description = "User not found")
+  ),
+  security(
+    ("bearerAuth" = [])
   )
 )]
 pub async fn destroy(

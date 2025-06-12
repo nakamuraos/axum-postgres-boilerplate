@@ -21,6 +21,8 @@ use hyper::StatusCode;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::{BasicAuth, Config as SwaggerConfig, SwaggerUi};
 
+use crate::modules::auth::guards::auth_guard;
+
 #[derive(Clone)]
 pub struct AppState {
   pub db: Db,
@@ -103,7 +105,8 @@ pub fn router(cfg: Config, db: Db) -> Router {
       .merge(
         Router::new()
           .route("/", post(graphql_handler))
-          .with_state(schema),
+          .with_state(schema)
+          .layer(axum::middleware::from_fn(auth_guard)),
       ),
   );
 

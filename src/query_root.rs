@@ -20,6 +20,7 @@ pub fn schema(
   // Register the active enums
   builder.register_enumeration::<sea_orm_active_enums::MpaaRating>();
   builder.register_enumeration::<users::enums::UserStatus>();
+  builder.register_enumeration::<users::enums::UserRole>();
 
   // Register the custom scalars
   builder
