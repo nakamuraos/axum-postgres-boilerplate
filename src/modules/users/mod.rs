@@ -12,7 +12,7 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::common::api_error::ApiError;
-use crate::modules::auth::guards::auth_guard;
+use crate::modules::auth::guards::{admin_guard, auth_guard};
 use crate::modules::users::dto::{User, UserCreate};
 use crate::AppState;
 
@@ -35,6 +35,7 @@ pub fn router() -> axum::Router<AppState> {
 
   Router::new()
     .nest("/v1", Router::new().merge(resources))
+    .layer(axum::middleware::from_fn(admin_guard))
     .layer(axum::middleware::from_fn(auth_guard))
 }
 
