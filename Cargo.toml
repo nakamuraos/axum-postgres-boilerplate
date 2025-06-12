@@ -17,20 +17,21 @@ axum-extra = "0.10.1"
 hyper = "1.4.1"
 tower = { version = "0.5.0", features = [] }
 tower-http = { version = "0.6.6", features = [
-    "trace",
-    "timeout",
-    "request-id",
-    "cors",
-    "normalize-path",
+  "trace",
+  "timeout",
+  "request-id",
+  "cors",
+  "normalize-path",
 ] }
 
 sea-orm = { version = "1.1.12", features = [
-    "runtime-tokio-rustls",
-    "sqlx-postgres",
-    "macros",
-    "with-chrono",
-    "with-json",
-    "with-uuid",
+  "runtime-tokio-rustls",
+  "sqlx-postgres",
+  "macros",
+  "with-chrono",
+  "with-json",
+  "with-uuid",
+  "seaography",
 ] }
 
 sea-orm-migration = { version = "1.1.12", features = ["runtime-tokio-rustls"] }
@@ -38,9 +39,9 @@ sea-orm-migration = { version = "1.1.12", features = ["runtime-tokio-rustls"] }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["json", "env-filter"] }
 
-reqwest = { version = "0.12.7", default-features = false, features = [
-    "json",
-    "rustls-tls",
+reqwest = { version = "0.12.20", default-features = false, features = [
+  "json",
+  "rustls-tls",
 ] }
 chrono = { version = "0.4.38", features = ["serde"] }
 serde = { version = "1.0.210", features = ["derive"] }
@@ -54,9 +55,14 @@ utoipa = "5.3.1"
 utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
 utoipa-axum = "0.2.0"
 utoipauto = "0.2.0"
-seaography = { version = "~1.1.4", features = ["with-decimal", "with-chrono", "with-postgres-array", "with-uuid"] }
+seaography = { version = "~1.1.4", features = [
+  "with-decimal",
+  "with-chrono",
+  "with-postgres-array",
+  "with-uuid",
+] }
 async-graphql-axum = "7.0.17"
 async-graphql = "7.0.17"
 jsonwebtoken = "9.3.1"
 base64 = "0.22.1"
-bcrypt = "0.15.0"
+bcrypt = "0.17.0"

@@ -55,7 +55,7 @@ pub fn router(cfg: Config, db: Db) -> Router {
   let normalize_path_layer = middleware::normalize_path_layer();
 
   // Create the router with the routes.
-  let router = modules::router();
+  let router = modules::router(axum::extract::State(app_state.clone()));
 
   // Create the API documentation using OpenAPI and Swagger UI.
   let api_doc = SwaggerUi::new(app_state.cfg.swagger_endpoint.clone())
@@ -106,7 +106,10 @@ pub fn router(cfg: Config, db: Db) -> Router {
         Router::new()
           .route("/", post(graphql_handler))
           .with_state(schema)
-          .layer(axum::middleware::from_fn(auth_guard)),
+          .layer(axum::middleware::from_fn_with_state(
+            app_state.clone(),
+            auth_guard,
+          )),
       ),
   );
 

@@ -16,7 +16,7 @@ use crate::modules::auth::guards::{admin_guard, auth_guard};
 use crate::modules::users::dto::{User, UserCreate};
 use crate::AppState;
 
-pub fn router() -> axum::Router<AppState> {
+pub fn router(State(state): State<AppState>) -> axum::Router<AppState> {
   let resources = Resource::named("users")
     // Define a route for `GET /users`
     .index(index)
@@ -36,7 +36,7 @@ pub fn router() -> axum::Router<AppState> {
   Router::new()
     .nest("/v1", Router::new().merge(resources))
     .layer(axum::middleware::from_fn(admin_guard))
-    .layer(axum::middleware::from_fn(auth_guard))
+    .layer(axum::middleware::from_fn_with_state(state, auth_guard))
 }
 
 #[utoipa::path(

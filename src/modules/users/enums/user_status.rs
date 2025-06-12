@@ -11,3 +11,9 @@ pub enum UserStatus {
   #[sea_orm(string_value = "Banned")]
   Banned,
 }
+
+impl Default for UserStatus {
+  fn default() -> Self {
+    Self::Inactive
+  }
+}

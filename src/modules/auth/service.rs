@@ -9,6 +9,7 @@ use uuid::Uuid;
 use crate::common::api_error::ApiError;
 use crate::modules::auth::dto::{AuthResponse, LoginRequest, RegisterRequest, UserResponse};
 use crate::modules::users::entities::{self as User};
+use crate::modules::users::enums::{UserRole, UserStatus};
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Claims {
@@ -16,6 +17,8 @@ pub struct Claims {
   pub exp: Option<usize>,
   pub iat: usize,
   pub email: String,
+  pub status: UserStatus,
+  pub role: UserRole,
 }
 
 pub async fn register(conn: &DatabaseConnection, req: RegisterRequest) -> Result<Value, ApiError> {
@@ -41,7 +44,7 @@ pub async fn register(conn: &DatabaseConnection, req: RegisterRequest) -> Result
   })?;
 
   // Generate JWT token
-  let token = generate_token(&user.id)?;
+  let token = generate_token(&user)?;
 
   let response = AuthResponse {
     token,
@@ -71,7 +74,7 @@ pub async fn login(conn: &DatabaseConnection, req: LoginRequest) -> Result<Value
   }
 
   // Generate JWT token
-  let token = generate_token(&user.id)?;
+  let token = generate_token(&user)?;
 
   let response = AuthResponse {
     token,
@@ -85,16 +88,20 @@ pub async fn login(conn: &DatabaseConnection, req: LoginRequest) -> Result<Value
   Ok(serde_json::to_value(response).map_err(|e| ApiError::InternalError(anyhow!(e)))?)
 }
 
-fn generate_token(user_id: &Uuid) -> Result<String, ApiError> {
-  let secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "your-secret-key".to_string());
+fn generate_token(user: &User::Model) -> Result<String, ApiError> {
+  let secret = std::env::var("JWT_SECRET")
+    .unwrap_or_else(|_| "a-string-secret-at-least-256-bits-long".to_string());
   let expiration = chrono::Utc::now()
     .checked_add_signed(chrono::Duration::days(7))
     .expect("valid timestamp")
     .timestamp();
 
   let claims = Claims {
-    sub: Some(user_id.to_string()),
+    sub: Some(user.id.to_string()),
     exp: Some(expiration as usize),
+    email: user.email.clone(),
+    status: user.status.clone(),
+    role: user.role.clone(),
     ..Default::default()
   };
 

@@ -39,8 +39,8 @@ The full list of crates used can be found in the [Cargo.toml](./Cargo.toml) file
   - [x] OpenAPI/Swagger documentation
 
 - **Authentication & Authorization**
-  - [ ] JWT authentication
-  - [ ] Role-based access control (RBAC)
+  - [x] JWT authentication
+  - [x] Role-based access control (RBAC)
 
 - **Error Handling & Logging**
   - [x] Centralized error handling
