@@ -1,9 +1,3 @@
-use crate::common::utils;
-use crate::common::{cfg::Config, middleware, telemetry};
-use crate::database::Db;
-use crate::doc;
-use crate::modules::{self, auth::guards::auth_guard};
-use crate::query_root;
 use async_graphql::{dynamic, http::GraphiQLSource};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
@@ -14,6 +8,13 @@ use axum::{
 };
 use utoipa::OpenApi;
 use utoipa_swagger_ui::{BasicAuth, Config as SwaggerConfig, SwaggerUi};
+
+use crate::common::utils;
+use crate::common::{cfg::Config, middleware, telemetry};
+use crate::database::Db;
+use crate::doc;
+use crate::modules::{self, auth::guards::auth_guard};
+use crate::query_root;
 
 #[derive(Clone)]
 pub struct AppState {

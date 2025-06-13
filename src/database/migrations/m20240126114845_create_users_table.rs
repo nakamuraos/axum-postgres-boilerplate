@@ -1,6 +1,7 @@
-use crate::modules::users::enums::{UserRole, UserStatus};
 use sea_orm::{ActiveEnum, DbBackend, Schema, Statement};
 use sea_orm_migration::prelude::*;
+
+use crate::modules::users::enums::{UserRole, UserStatus};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -96,9 +97,59 @@ impl MigrationTrait for Migration {
   }
 
   async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-    manager
+    // Drop the users table first
+    let result = manager
       .drop_table(Table::drop().table(Users::Table).to_owned())
-      .await
+      .await?;
+
+    // Check and drop UserStatus enum if it exists
+    let db = manager.get_connection();
+    let enum_name = UserStatus::name().to_string();
+    let check_type = format!(
+      "SELECT EXISTS (
+        SELECT 1 FROM pg_type 
+        WHERE typname = '{}'
+      )",
+      enum_name
+    );
+    let type_exists: bool = db
+      .query_one(Statement::from_string(DbBackend::Postgres, check_type))
+      .await?
+      .map(|row| row.try_get::<bool>("", "exists").unwrap_or(false))
+      .unwrap_or(false);
+
+    if type_exists {
+      let drop_type = format!("DROP TYPE IF EXISTS {}", enum_name);
+      manager
+        .get_connection()
+        .execute(Statement::from_string(DbBackend::Postgres, drop_type))
+        .await?;
+    }
+
+    // Check and drop UserRole enum if it exists
+    let enum_name = UserRole::name().to_string();
+    let check_type = format!(
+      "SELECT EXISTS (
+        SELECT 1 FROM pg_type 
+        WHERE typname = '{}'
+      )",
+      enum_name
+    );
+    let type_exists: bool = db
+      .query_one(Statement::from_string(DbBackend::Postgres, check_type))
+      .await?
+      .map(|row| row.try_get::<bool>("", "exists").unwrap_or(false))
+      .unwrap_or(false);
+
+    if type_exists {
+      let drop_type = format!("DROP TYPE IF EXISTS {}", enum_name);
+      manager
+        .get_connection()
+        .execute(Statement::from_string(DbBackend::Postgres, drop_type))
+        .await?;
+    }
+
+    Ok(result)
   }
 }
 

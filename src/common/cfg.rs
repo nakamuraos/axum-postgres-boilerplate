@@ -43,6 +43,9 @@ pub struct Configuration {
 
   /// Database connection timeout in seconds
   pub db_timeout: u64,
+
+  /// Whether to run database migrations on startup
+  pub db_run_migrations: bool,
 }
 
 #[derive(Deserialize, Debug)]
@@ -90,6 +93,15 @@ impl Configuration {
             .parse::<u64>()
             .expect("Unable to parse the value of the DATABASE_TIMEOUT environment variable. Please make sure it is a valid unsigned 64-bit integer");
 
+    // Default to true in development, false in production
+    let db_run_migrations = std::env::var("DATABASE_RUN_MIGRATIONS")
+            .unwrap_or_else(|_| match env {
+                Environment::Development => "true".to_string(),
+                Environment::Production => "false".to_string(),
+            })
+            .parse::<bool>()
+            .expect("Unable to parse the value of the DATABASE_RUN_MIGRATIONS environment variable. Please make sure it is a valid boolean");
+
     let listen_address = SocketAddr::from((Ipv6Addr::UNSPECIFIED, app_port));
 
     let config = Arc::new(Configuration {
@@ -103,6 +115,7 @@ impl Configuration {
       db_dsn,
       db_pool_max_size,
       db_timeout,
+      db_run_migrations,
     });
 
     // Log the current configuration

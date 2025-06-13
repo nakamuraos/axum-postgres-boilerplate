@@ -22,8 +22,13 @@ async fn main() {
   tracing::debug!("Initializing db connection");
   let db = Db::new(&cfg).await.expect("Failed to initialize db");
 
-  tracing::debug!("Running migrations");
-  db.run_migrations().await.expect("Failed to run migrations");
+  // Run migrations if enabled
+  if cfg.db_run_migrations {
+    tracing::debug!("Running migrations");
+    db.run_migrations().await.expect("Failed to run migrations");
+  } else {
+    tracing::debug!("Skipping migrations as DATABASE_RUN_MIGRATIONS is disabled");
+  }
 
   // Spin up our server.
   tracing::info!("Starting server on {}", cfg.listen_address);

@@ -1,7 +1,8 @@
-use crate::modules::users::enums::{UserRole, UserStatus};
 use chrono::{DateTime, Utc};
 use sea_orm::{entity::prelude::*, ActiveValue::Set};
 use serde::{Deserialize, Serialize};
+
+use crate::modules::users::enums::{UserRole, UserStatus};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "users")]

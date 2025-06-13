@@ -1,8 +1,9 @@
-use crate::modules::auth::guards::graphql_guards;
-use crate::modules::users::{self, entities as usersEntities};
 use async_graphql::dynamic::*;
 use sea_orm::DatabaseConnection;
 use seaography::{async_graphql, lazy_static, Builder, BuilderContext};
+
+use crate::modules::auth::guards::graphql_guards;
+use crate::modules::users::{self, entities as usersEntities};
 
 lazy_static::lazy_static! {
   static ref CONTEXT: BuilderContext = {

@@ -1,9 +1,10 @@
+use axum::Json;
+use serde_json::Value;
+
 use crate::{
   common::api_error::ApiError,
   modules::health::{dto::Healthy, service},
 };
-use axum::Json;
-use serde_json::Value;
 
 #[utoipa::path(
   get,

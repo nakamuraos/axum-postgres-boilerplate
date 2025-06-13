@@ -1,12 +1,13 @@
 pub mod migrations;
 
-use crate::common::cfg::Config;
-use crate::database::migrations::Migrator;
-use ::anyhow::Result;
+use anyhow::Result;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use sea_orm_migration::MigratorTrait;
 use std::time::Duration;
 use tracing::info;
+
+use crate::common::cfg::Config;
+use crate::database::migrations::Migrator;
 
 #[derive(Clone)]
 pub struct Db {
