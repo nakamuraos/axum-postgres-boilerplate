@@ -5,14 +5,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::app::AppState;
 use crate::common::api_error::ApiError;
-use crate::modules::users::dto::UserResponse;
+use crate::modules::users::dto::UserDto;
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Claims {
   pub sub: String,
   pub exp: usize,
   pub iat: usize,
-  pub user: UserResponse,
+  pub user: UserDto,
 }
 
 pub async fn auth_guard(
@@ -53,7 +53,7 @@ pub async fn auth_guard(
 
   // Add user role to request extensions for GraphQL context
   let mut req = req;
-  req.extensions_mut().insert(UserResponse {
+  req.extensions_mut().insert(UserDto {
     ..token_data.claims.user
   });
 

@@ -10,10 +10,10 @@ pub fn router(State(state): State<AppState>) -> Router<AppState> {
   let router_auth: Router<AppState> = auth::router();
   let router_users: Router<AppState> = users::router(axum::extract::State(state));
 
-  let routes: Router<AppState> = Router::new()
+  let routers: Router<AppState> = Router::new()
     .merge(router_health)
     .merge(router_auth)
     .merge(router_users);
 
-  Router::new().nest("/api", routes)
+  Router::new().nest("/api", routers)
 }

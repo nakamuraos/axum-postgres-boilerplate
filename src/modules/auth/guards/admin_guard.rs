@@ -2,14 +2,14 @@ use axum::{extract::Request, middleware::Next, response::Response};
 use sea_orm::ActiveEnum;
 
 use crate::common::api_error::ApiError;
-use crate::modules::users::dto::UserResponse;
+use crate::modules::users::dto::UserDto;
 use crate::modules::users::enums::UserRole;
 
 pub async fn admin_guard(req: Request, next: Next) -> Result<Response, ApiError> {
   // Get the user from request extensions (set by auth_guard)
   let user = req
     .extensions()
-    .get::<UserResponse>()
+    .get::<UserDto>()
     .ok_or_else(|| ApiError::Unauthorized("User not found in request".to_string()))?;
 
   // Check if user has admin role

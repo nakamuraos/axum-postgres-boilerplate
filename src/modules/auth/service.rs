@@ -8,8 +8,8 @@ use uuid::Uuid;
 use crate::common::api_error::ApiError;
 use crate::modules::auth::dto::{AuthResponse, LoginRequest, RegisterRequest};
 use crate::modules::auth::guards::auth_guard::Claims;
-use crate::modules::users::dto::UserResponse;
-use crate::modules::users::entities::{self as User};
+use crate::modules::users::dto::UserDto;
+use crate::modules::users::entities::{self as UserEntities};
 
 pub async fn register(conn: &DatabaseConnection, req: RegisterRequest) -> Result<Value, ApiError> {
   // Hash password
@@ -17,7 +17,7 @@ pub async fn register(conn: &DatabaseConnection, req: RegisterRequest) -> Result
     .map_err(|e| ApiError::InternalError(anyhow!("Failed to hash password: {}", e)))?;
 
   // Create user
-  let user = User::ActiveModel {
+  let user = UserEntities::ActiveModel {
     id: sea_orm::ActiveValue::Set(Uuid::new_v4()),
     email: sea_orm::ActiveValue::Set(req.email),
     password: sea_orm::ActiveValue::Set(password_hash),
@@ -38,7 +38,7 @@ pub async fn register(conn: &DatabaseConnection, req: RegisterRequest) -> Result
 
   let response = AuthResponse {
     token,
-    user: UserResponse { ..user.into() },
+    user: UserDto { ..user.into() },
   };
 
   Ok(serde_json::to_value(response).map_err(|e| ApiError::InternalError(anyhow!(e)))?)
@@ -46,8 +46,8 @@ pub async fn register(conn: &DatabaseConnection, req: RegisterRequest) -> Result
 
 pub async fn login(conn: &DatabaseConnection, req: LoginRequest) -> Result<Value, ApiError> {
   // Find user by email
-  let user = User::Entity::find()
-    .filter(User::Column::Email.eq(req.email))
+  let user = UserEntities::Entity::find()
+    .filter(UserEntities::Column::Email.eq(req.email))
     .one(conn)
     .await?
     .ok_or_else(|| ApiError::InvalidRequest("Invalid credentials".to_string()))?;
@@ -64,13 +64,13 @@ pub async fn login(conn: &DatabaseConnection, req: LoginRequest) -> Result<Value
 
   let response = AuthResponse {
     token,
-    user: UserResponse { ..user.into() },
+    user: UserDto { ..user.into() },
   };
 
   Ok(serde_json::to_value(response).map_err(|e| ApiError::InternalError(anyhow!(e)))?)
 }
 
-fn generate_token(user: &User::Model) -> Result<String, ApiError> {
+fn generate_token(user: &UserEntities::Model) -> Result<String, ApiError> {
   let secret = std::env::var("JWT_SECRET")
     .unwrap_or_else(|_| "a-string-secret-at-least-256-bits-long".to_string());
   let expiration = chrono::Utc::now()

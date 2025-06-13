@@ -3,13 +3,13 @@ use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, Qu
 use uuid::Uuid;
 
 use crate::common::api_error::ApiError;
-use crate::modules::users::dto::UserResponse;
-use crate::modules::users::entities::{self, Entity as User};
+use crate::modules::users::dto::UserDto;
+use crate::modules::users::entities::{self, Entity as UserEntity};
 use crate::modules::users::enums::UserStatus;
 
 pub async fn index(db: &DatabaseConnection) -> Result<serde_json::Value, ApiError> {
-  let users = User::find().all(db).await?;
-  let responses: Vec<UserResponse> = users.into_iter().map(UserResponse::from).collect();
+  let users = UserEntity::find().all(db).await?;
+  let responses: Vec<UserDto> = users.into_iter().map(UserDto::from).collect();
   Ok(serde_json::json!(responses))
 }
 
@@ -40,18 +40,18 @@ pub async fn create(
     }
   })?;
 
-  let response = UserResponse::from(user);
+  let response = UserDto::from(user);
   Ok(serde_json::json!(response))
 }
 
 pub async fn show(db: &DatabaseConnection, id: Uuid) -> Result<serde_json::Value, ApiError> {
-  let user = User::find()
+  let user = UserEntity::find()
     .filter(entities::Column::Id.eq(id))
     .one(db)
     .await?
     .ok_or_else(|| ApiError::NotFound("User not found".to_string()))?;
 
-  let response = UserResponse::from(user);
+  let response = UserDto::from(user);
   Ok(serde_json::json!(response))
 }
 
@@ -60,7 +60,7 @@ pub async fn update(
   id: Uuid,
   name: String,
 ) -> Result<serde_json::Value, ApiError> {
-  let user = User::find()
+  let user = UserEntity::find()
     .filter(entities::Column::Id.eq(id))
     .one(db)
     .await?
@@ -70,12 +70,12 @@ pub async fn update(
   user.name = Set(name);
 
   let user = user.update(db).await?;
-  let response = UserResponse::from(user);
+  let response = UserDto::from(user);
   Ok(serde_json::json!(response))
 }
 
 pub async fn destroy(db: &DatabaseConnection, id: Uuid) -> Result<(), ApiError> {
-  let user = User::find()
+  let user = UserEntity::find()
     .filter(entities::Column::Id.eq(id))
     .one(db)
     .await?

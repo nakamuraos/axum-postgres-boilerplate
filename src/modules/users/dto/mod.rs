@@ -14,7 +14,7 @@ pub struct UserCreate {
 
 // Custom type for OpenAPI documentation
 #[derive(Debug, Default, Clone, Serialize, Deserialize, ToSchema)]
-pub struct UserResponse {
+pub struct UserDto {
   pub id: String,
   pub email: String,
   pub name: String,
@@ -26,7 +26,7 @@ pub struct UserResponse {
   pub updated_at: Option<String>,
 }
 
-impl From<Model> for UserResponse {
+impl From<Model> for UserDto {
   fn from(model: Model) -> Self {
     Self {
       id: model.id.to_string(),
