@@ -25,4 +25,6 @@ pub struct UserResponse {
   pub id: String,
   pub email: String,
   pub name: String,
+  pub status: String,
+  pub role: String,
 }

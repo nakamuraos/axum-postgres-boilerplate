@@ -1,9 +1,9 @@
 use crate::common::api_error::ApiError;
 use crate::modules::users::entities::{self, Entity as User, UserResponse};
 use crate::modules::users::enums::UserStatus;
-use sea_orm::{ActiveModelTrait, DatabaseConnection, EntityTrait, Set, ColumnTrait, QueryFilter};
-use uuid::Uuid;
 use bcrypt::{hash, DEFAULT_COST};
+use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set};
+use uuid::Uuid;
 
 pub async fn index(db: &DatabaseConnection) -> Result<serde_json::Value, ApiError> {
   let users = User::find().all(db).await?;
@@ -12,10 +12,10 @@ pub async fn index(db: &DatabaseConnection) -> Result<serde_json::Value, ApiErro
 }
 
 pub async fn create(
-  db: &DatabaseConnection, 
+  db: &DatabaseConnection,
   email: String,
   password: String,
-  name: String
+  name: String,
 ) -> Result<serde_json::Value, ApiError> {
   // Hash password
   let password_hash = hash(password.as_bytes(), DEFAULT_COST)
@@ -43,39 +43,43 @@ pub async fn create(
 }
 
 pub async fn show(db: &DatabaseConnection, id: Uuid) -> Result<serde_json::Value, ApiError> {
-    let user = User::find()
-        .filter(entities::Column::Id.eq(id))
-        .one(db)
-        .await?
-        .ok_or_else(|| ApiError::NotFound("User not found".to_string()))?;
-    
-    let response = UserResponse::from(user);
-    Ok(serde_json::json!(response))
+  let user = User::find()
+    .filter(entities::Column::Id.eq(id))
+    .one(db)
+    .await?
+    .ok_or_else(|| ApiError::NotFound("User not found".to_string()))?;
+
+  let response = UserResponse::from(user);
+  Ok(serde_json::json!(response))
 }
 
-pub async fn update(db: &DatabaseConnection, id: Uuid, name: String) -> Result<serde_json::Value, ApiError> {
-    let user = User::find()
-        .filter(entities::Column::Id.eq(id))
-        .one(db)
-        .await?
-        .ok_or_else(|| ApiError::NotFound("User not found".to_string()))?;
+pub async fn update(
+  db: &DatabaseConnection,
+  id: Uuid,
+  name: String,
+) -> Result<serde_json::Value, ApiError> {
+  let user = User::find()
+    .filter(entities::Column::Id.eq(id))
+    .one(db)
+    .await?
+    .ok_or_else(|| ApiError::NotFound("User not found".to_string()))?;
 
-    let mut user: entities::ActiveModel = user.into();
-    user.name = Set(name);
-    
-    let user = user.update(db).await?;
-    let response = UserResponse::from(user);
-    Ok(serde_json::json!(response))
+  let mut user: entities::ActiveModel = user.into();
+  user.name = Set(name);
+
+  let user = user.update(db).await?;
+  let response = UserResponse::from(user);
+  Ok(serde_json::json!(response))
 }
 
 pub async fn destroy(db: &DatabaseConnection, id: Uuid) -> Result<(), ApiError> {
-    let user = User::find()
-        .filter(entities::Column::Id.eq(id))
-        .one(db)
-        .await?
-        .ok_or_else(|| ApiError::NotFound("User not found".to_string()))?;
+  let user = User::find()
+    .filter(entities::Column::Id.eq(id))
+    .one(db)
+    .await?
+    .ok_or_else(|| ApiError::NotFound("User not found".to_string()))?;
 
-    let user: entities::ActiveModel = user.into();
-    user.delete(db).await?;
-    Ok(())
+  let user: entities::ActiveModel = user.into();
+  user.delete(db).await?;
+  Ok(())
 }
