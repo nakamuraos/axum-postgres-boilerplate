@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
+use crate::modules::users::dto::UserResponse;
+
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct LoginRequest {
   pub email: String,
@@ -18,13 +20,4 @@ pub struct RegisterRequest {
 pub struct AuthResponse {
   pub token: String,
   pub user: UserResponse,
-}
-
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
-pub struct UserResponse {
-  pub id: String,
-  pub email: String,
-  pub name: String,
-  pub status: String,
-  pub role: String,
 }

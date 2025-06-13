@@ -1,23 +1,18 @@
 use axum::extract::State;
 use axum::{extract::Request, middleware::Next, response::Response};
 use jsonwebtoken::{decode, DecodingKey, Validation};
-use sea_orm::ActiveEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::app::AppState;
 use crate::common::api_error::ApiError;
-use crate::modules::users::dto::User;
-use crate::modules::users::enums::{UserRole, UserStatus};
+use crate::modules::users::dto::UserResponse;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Claims {
   pub sub: String,
   pub exp: usize,
   pub iat: usize,
-  pub name: String,
-  pub email: String,
-  pub status: UserStatus,
-  pub role: UserRole,
+  pub user: UserResponse,
 }
 
 pub async fn auth_guard(
@@ -58,13 +53,8 @@ pub async fn auth_guard(
 
   // Add user role to request extensions for GraphQL context
   let mut req = req;
-  req.extensions_mut().insert(token_data.claims.role.clone());
-  req.extensions_mut().insert(User {
-    id: token_data.claims.sub,
-    name: token_data.claims.name,
-    email: token_data.claims.email,
-    status: UserStatus::to_value(&token_data.claims.status),
-    role: UserRole::to_value(&token_data.claims.role),
+  req.extensions_mut().insert(UserResponse {
+    ..token_data.claims.user
   });
 
   Ok(next.run(req).await)

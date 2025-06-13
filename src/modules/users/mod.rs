@@ -13,8 +13,8 @@ use uuid::Uuid;
 
 use crate::common::api_error::ApiError;
 use crate::modules::auth::guards::{admin_guard, auth_guard};
-use crate::modules::users::dto::{User, UserCreate};
-use crate::app::AppState;
+use crate::modules::users::dto::UserCreate;
+use crate::{app::AppState, modules::users::dto::UserResponse};
 
 pub fn router(State(state): State<AppState>) -> axum::Router<AppState> {
   let resources = Resource::named("users")
@@ -44,7 +44,7 @@ pub fn router(State(state): State<AppState>) -> axum::Router<AppState> {
   path = "/api/v1/users",
   operation_id = "usersIndex",
   responses(
-      (status = 200, description = "List users", body = [User])
+      (status = 200, description = "List users", body = [UserResponse])
   ),
   security(
     ("bearerAuth" = [])
@@ -61,7 +61,7 @@ pub async fn index(State(state): State<AppState>) -> Result<Json<Value>, ApiErro
   operation_id = "usersCreate",
   request_body = UserCreate,
   responses(
-      (status = 200, description = "Create a user", body = User)
+      (status = 200, description = "Create a user", body = UserResponse)
   ),
   security(
     ("bearerAuth" = [])
@@ -83,7 +83,7 @@ pub async fn create(
     ("user_id" = String, Path, description = "User ID")
   ),
   responses(
-    (status = 200, description = "Get user details", body = User),
+    (status = 200, description = "Get user details", body = UserResponse),
     (status = 404, description = "User not found")
   ),
   security(
@@ -109,7 +109,7 @@ pub async fn show(
   ),
   request_body = UserCreate,
   responses(
-    (status = 200, description = "Update user", body = User),
+    (status = 200, description = "Update user", body = UserResponse),
     (status = 404, description = "User not found")
   ),
   security(

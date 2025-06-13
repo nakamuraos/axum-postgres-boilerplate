@@ -1,9 +1,11 @@
-use crate::common::api_error::ApiError;
-use crate::modules::users::entities::{self, Entity as User, UserResponse};
-use crate::modules::users::enums::UserStatus;
 use bcrypt::{hash, DEFAULT_COST};
 use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set};
 use uuid::Uuid;
+
+use crate::common::api_error::ApiError;
+use crate::modules::users::dto::UserResponse;
+use crate::modules::users::entities::{self, Entity as User};
+use crate::modules::users::enums::UserStatus;
 
 pub async fn index(db: &DatabaseConnection) -> Result<serde_json::Value, ApiError> {
   let users = User::find().all(db).await?;

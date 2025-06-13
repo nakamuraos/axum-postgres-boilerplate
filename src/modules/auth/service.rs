@@ -1,28 +1,15 @@
 use anyhow::anyhow;
 use bcrypt::{hash, verify, DEFAULT_COST};
 use jsonwebtoken::{encode, EncodingKey, Header};
-use sea_orm::{
-  ActiveEnum, ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
-};
-use serde::{Deserialize, Serialize};
+use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 use serde_json::Value;
 use uuid::Uuid;
 
 use crate::common::api_error::ApiError;
-use crate::modules::auth::dto::{AuthResponse, LoginRequest, RegisterRequest, UserResponse};
+use crate::modules::auth::dto::{AuthResponse, LoginRequest, RegisterRequest};
+use crate::modules::auth::guards::auth_guard::Claims;
+use crate::modules::users::dto::UserResponse;
 use crate::modules::users::entities::{self as User};
-use crate::modules::users::enums::{UserRole, UserStatus};
-
-#[derive(Serialize, Deserialize, Default)]
-pub struct Claims {
-  pub sub: Option<String>,
-  pub exp: Option<usize>,
-  pub iat: usize,
-  pub name: String,
-  pub email: String,
-  pub status: UserStatus,
-  pub role: UserRole,
-}
 
 pub async fn register(conn: &DatabaseConnection, req: RegisterRequest) -> Result<Value, ApiError> {
   // Hash password
@@ -51,13 +38,7 @@ pub async fn register(conn: &DatabaseConnection, req: RegisterRequest) -> Result
 
   let response = AuthResponse {
     token,
-    user: UserResponse {
-      id: user.id.to_string(),
-      email: user.email,
-      name: user.name,
-      status: user.status.to_value(),
-      role: user.role.to_value(),
-    },
+    user: UserResponse { ..user.into() },
   };
 
   Ok(serde_json::to_value(response).map_err(|e| ApiError::InternalError(anyhow!(e)))?)
@@ -83,13 +64,7 @@ pub async fn login(conn: &DatabaseConnection, req: LoginRequest) -> Result<Value
 
   let response = AuthResponse {
     token,
-    user: UserResponse {
-      id: user.id.to_string(),
-      email: user.email,
-      name: user.name,
-      status: user.status.to_value(),
-      role: user.role.to_value(),
-    },
+    user: UserResponse { ..user.into() },
   };
 
   Ok(serde_json::to_value(response).map_err(|e| ApiError::InternalError(anyhow!(e)))?)
@@ -104,12 +79,9 @@ fn generate_token(user: &User::Model) -> Result<String, ApiError> {
     .timestamp();
 
   let claims = Claims {
-    sub: Some(user.id.to_string()),
-    exp: Some(expiration as usize),
-    name: user.name.clone(),
-    email: user.email.clone(),
-    status: user.status.clone(),
-    role: user.role.clone(),
+    sub: user.id.to_string(),
+    exp: expiration as usize,
+    user: user.clone().into(),
     ..Default::default()
   };
 
