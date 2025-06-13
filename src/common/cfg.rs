@@ -54,9 +54,9 @@ pub enum Environment {
 impl Configuration {
   /// Creates a new configuration from environment variables.
   pub fn new() -> Config {
-    let env = env_var("APP_ENVIRONMENT")
+    let env = env_var("APP_ENV")
             .parse::<Environment>()
-            .expect("Unable to parse the value of the APP_ENVIRONMENT environment variable. Please make sure it is either \"development\" or \"production\".");
+            .expect("Unable to parse the value of the APP_ENV environment variable. Please make sure it is either \"development\" or \"production\".");
 
     let app_port = env_var("PORT")
             .parse::<u16>()

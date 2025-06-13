@@ -117,6 +117,10 @@ With everything else set up, all you need to do now is:
 $ cargo run
 ```
 
+- The application will be available at http://localhost:8080
+  - Swagger: http://localhost:8080/docs
+  - GraphQL: http://localhost:8080/graphql
+
 ### Autoreloading
 
 To start the server and autoreload on code changes:
@@ -131,6 +135,34 @@ To format `.json` logs using [`jq`](https://github.com/jqlang/jq):
 ```shell
 $ cargo watch -q -x run | jq .
 ```
+
+## Running with Docker Compose
+
+This project includes Docker Compose configuration for easy development and deployment. To run the application using Docker Compose:
+
+1. Make sure you have Docker and Docker Compose installed on your system.
+
+2. Copy the sample environment file:
+```shell
+$ cp .env.sample .env
+```
+
+3. Start the application and its dependencies (PostgreSQL):
+```shell
+$ docker-compose up
+```
+
+To run in detached mode (in the background):
+```shell
+$ docker-compose up -d
+```
+
+To stop the application:
+```shell
+$ docker-compose down
+```
+
+The application will be available at `http://localhost:8080`, and PostgreSQL will be accessible on port 5432.
 
 ## Contributing
 

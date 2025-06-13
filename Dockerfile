@@ -38,7 +38,7 @@ COPY --from=builder /app/target/release/server server
 
 # Set environment variables
 ENV PORT=8080
-ENV APP_ENVIRONMENT=production
+ENV APP_ENV=production
 ENV RUST_LOG="server=info,tower_http=info,sqlx=info"
 
 # Expose the port your app runs on

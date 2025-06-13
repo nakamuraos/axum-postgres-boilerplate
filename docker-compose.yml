@@ -1,0 +1,25 @@
+services:
+  server:
+    container_name: server_container
+    image: server:local
+    build: .
+    volumes:
+      - ./.env:/app/.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  db:
+    container_name: server_db_container
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: example
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
+    driver: local
