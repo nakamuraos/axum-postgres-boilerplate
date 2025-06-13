@@ -33,9 +33,8 @@ The full list of crates used can be found in the [Cargo.toml](./Cargo.toml) file
   - [Configuration and Build Files](#configuration-and-build-files)
   - [Documentation](#documentation)
 - [Getting Started](#getting-started)
-  - [Install `sea-orm-cli`](#install-sea-orm-cli)
-  - [Run Postgres](#run-postgres)
   - [Clone this Repository](#clone-this-repository)
+  - [Run Postgres](#run-postgres)
   - [Configure the Application](#configure-the-application)
   - [Set Up the Application Database](#set-up-the-application-database)
   - [Starting the Application](#starting-the-application)
@@ -208,12 +207,11 @@ Each directory and file serves a specific purpose:
 
 To begin with this project:
 
-### Install `sea-orm-cli`
-
-Sea-ORM offers a command-line tool for creating and managing databases as well as migrations. It is available on the Cargo crates registry as `sea-orm-cli` and can be installed as follows:
+### Clone this Repository
 
 ```shell
-$ cargo install sea-orm-cli
+$ git clone https://github.com/nakamuraos/axum-postgres-boilerplate
+$ cd axum-postgres-boilerplate
 ```
 
 ### Run Postgres
@@ -224,27 +222,12 @@ The most straightforward way to run Postgres is by using a container with a pre-
 $ docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=password postgres
 ```
 
-### Clone this Repository
-
-```shell
-$ git clone https://github.com/nakamuraos/axum-postgres-boilerplate
-$ cd axum-postgres-boilerplate
-```
-
 ### Configure the Application
 
 The backend application is preferably configured via environment variables. To simplify the process during development, we can use `.env` files to avoid defining the variables each time. As a starting point, you can simply copy the sample `.env` file in this repo and modify the `.env` file as per the comments therein.
 
 ```shell
 $ cp .env.sample .env
-```
-
-### Set Up the Application Database
-
-With `sea-orm-cli` installed and your `.env` file set up, you can prepare the Postgres database for use:
-
-```shell
-$ sea-orm-cli migrate up
 ```
 
 ### Starting the Application

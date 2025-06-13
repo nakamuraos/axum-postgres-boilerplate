@@ -1,8 +1,8 @@
 use server::common::cfg::Configuration;
 use server::common::telemetry;
+use server::common::utils::shutdown_signal::shutdown_signal;
 use server::database::Db;
 use tokio::net::TcpListener;
-use tokio::signal;
 
 #[tokio::main]
 async fn main() {
@@ -44,30 +44,4 @@ async fn main() {
     .with_graceful_shutdown(shutdown_signal())
     .await
     .expect("Failed to start server")
-}
-
-async fn shutdown_signal() {
-  let ctrl_c = async {
-    signal::ctrl_c()
-      .await
-      .expect("Failed to listen for shutdown signal");
-  };
-
-  #[cfg(unix)]
-  let terminate = async {
-    signal::unix::signal(signal::unix::SignalKind::terminate())
-      .expect("Failed to install SIGTERM handler")
-      .recv()
-      .await;
-  };
-
-  #[cfg(not(unix))]
-  let terminate = std::future::pending::<()>();
-
-  tokio::select! {
-    _ = ctrl_c => {},
-    _ = terminate => {},
-  }
-
-  println!("Shutdown signal received. Shutting down...");
 }
