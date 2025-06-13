@@ -7,7 +7,7 @@ use serde_json::Value;
 
 use crate::common::api_error::ApiError;
 use crate::modules::auth::dto::{AuthResponse, LoginRequest, RegisterRequest};
-use crate::AppState;
+use crate::app::AppState;
 
 pub fn router() -> Router<AppState> {
   Router::new()

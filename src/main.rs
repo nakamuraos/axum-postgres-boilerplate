@@ -31,7 +31,7 @@ async fn main() {
     .await
     .expect("Failed to bind address");
 
-  let router = server::router(cfg.clone(), db);
+  let router = server::app::router(cfg.clone(), db);
 
   tracing::info!("Swagger at http://{}{}", cfg.listen_address, "/docs");
   tracing::info!(

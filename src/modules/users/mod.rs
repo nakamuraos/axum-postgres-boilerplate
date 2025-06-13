@@ -14,7 +14,7 @@ use uuid::Uuid;
 use crate::common::api_error::ApiError;
 use crate::modules::auth::guards::{admin_guard, auth_guard};
 use crate::modules::users::dto::{User, UserCreate};
-use crate::AppState;
+use crate::app::AppState;
 
 pub fn router(State(state): State<AppState>) -> axum::Router<AppState> {
   let resources = Resource::named("users")

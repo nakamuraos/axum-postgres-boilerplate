@@ -1,7 +1,7 @@
 pub mod dto;
 pub mod service;
 
-use crate::{common::api_error::ApiError, modules::health::dto::Healthy, AppState};
+use crate::{app::AppState, common::api_error::ApiError, modules::health::dto::Healthy};
 use axum::{Json, Router};
 use axum_extra::routing::Resource;
 use serde_json::Value;

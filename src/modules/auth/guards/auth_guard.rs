@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::common::api_error::ApiError;
 use crate::modules::users::enums::{UserRole, UserStatus};
-use crate::AppState;
+use crate::app::AppState;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
