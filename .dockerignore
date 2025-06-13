@@ -1,3 +1,4 @@
+docs/
 target/
 deploy/
 tests/
@@ -6,3 +7,4 @@ migrations/
 .env
 .dockerignore
 Dockerfile
+docker-compose.yml

@@ -9,6 +9,10 @@ services:
       - "8080:8080"
     depends_on:
       - db
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
 
   db:
     container_name: server_db_container
@@ -19,6 +23,16 @@ services:
       POSTGRES_DB: example
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "PGPASSWORD=password pg_isready -U postgres -d example"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
 
 volumes:
   db_data:
