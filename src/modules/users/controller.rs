@@ -11,6 +11,7 @@ use crate::{common::api_error::ApiError, modules::users::service};
 
 #[utoipa::path(
   get,
+  tag = "Users",
   path = "/api/v1/users",
   operation_id = "usersIndex",
   responses(
@@ -27,6 +28,7 @@ pub async fn index(State(state): State<AppState>) -> Result<Json<Value>, ApiErro
 
 #[utoipa::path(
   post,
+  tag = "Users",
   path = "/api/v1/users",
   operation_id = "usersCreate",
   request_body = UserCreate,
@@ -47,6 +49,7 @@ pub async fn create(
 
 #[utoipa::path(
   get,
+  tag = "Users",
   path = "/api/v1/users/{user_id}",
   operation_id = "usersShow",
   params(
@@ -72,6 +75,7 @@ pub async fn show(
 
 #[utoipa::path(
   put,
+  tag = "Users",
   path = "/api/v1/users/{user_id}",
   operation_id = "usersUpdate",
   params(
@@ -99,6 +103,7 @@ pub async fn update(
 
 #[utoipa::path(
   delete,
+  tag = "Users",
   path = "/api/v1/users/{user_id}",
   operation_id = "usersDestroy",
   params(

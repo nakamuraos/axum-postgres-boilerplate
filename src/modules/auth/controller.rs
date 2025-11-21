@@ -8,6 +8,7 @@ use crate::modules::auth::service;
 
 #[utoipa::path(
   post,
+  tag = "Auth",
   path = "/api/v1/auth/register",
   operation_id = "authRegister",
   request_body = RegisterRequest,
@@ -27,6 +28,7 @@ pub async fn register(
 
 #[utoipa::path(
   post,
+  tag = "Auth",
   path = "/api/v1/auth/login",
   operation_id = "authLogin",
   request_body = LoginRequest,
