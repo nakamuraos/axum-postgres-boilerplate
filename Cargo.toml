@@ -66,3 +66,10 @@ async-graphql = "7.0.17"
 jsonwebtoken = { version = "10.2.0", features = ["rust_crypto"] }
 base64 = "0.22.1"
 bcrypt = "0.17.1"
+
+[dev-dependencies]
+mockall = "0.13.1"
+tokio-test = "0.4.4"
+tower = { version = "0.5.0", features = ["util"] }
+http-body-util = "0.1.2"
+assert-json-diff = "2.0.2"

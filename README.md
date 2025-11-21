@@ -74,7 +74,7 @@ The full list of crates used can be found in the [Cargo.toml](./Cargo.toml) file
 
 - **Testing**
 
-  - [ ] Unit tests
+  - [x] Unit tests
   - [ ] Integration tests
   - [ ] API tests
 

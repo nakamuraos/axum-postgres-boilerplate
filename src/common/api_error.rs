@@ -92,3 +92,71 @@ impl IntoResponse for ApiError {
     (status, Json(resp)).into_response()
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_api_error_invalid_request() {
+    let error = ApiError::InvalidRequest("Test error".to_string());
+    assert_eq!(error.to_string(), "Invalid request: Test error");
+  }
+
+  #[test]
+  fn test_api_error_not_found() {
+    let error = ApiError::NotFound("Resource not found".to_string());
+    assert_eq!(error.to_string(), "Not Found: Resource not found");
+  }
+
+  #[test]
+  fn test_api_error_forbidden() {
+    let error = ApiError::Forbidden("Access denied".to_string());
+    assert_eq!(error.to_string(), "Forbidden: Access denied");
+  }
+
+  #[test]
+  fn test_api_error_unauthorized() {
+    let error = ApiError::Unauthorized("Not authenticated".to_string());
+    assert_eq!(error.to_string(), "Unauthorized: Not authenticated");
+  }
+
+  #[test]
+  fn test_api_error_response_status_codes() {
+    let invalid_request = ApiError::InvalidRequest("Test".to_string());
+    let response = invalid_request.into_response();
+    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+
+    let not_found = ApiError::NotFound("Test".to_string());
+    let response = not_found.into_response();
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
+
+    let forbidden = ApiError::Forbidden("Test".to_string());
+    let response = forbidden.into_response();
+    assert_eq!(response.status(), StatusCode::FORBIDDEN);
+
+    let unauthorized = ApiError::Unauthorized("Test".to_string());
+    let response = unauthorized.into_response();
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+  }
+
+  #[test]
+  fn test_api_error_resp_serialization() {
+    let error_resp = ApiErrorResp {
+      status: 400,
+      message: "Bad Request".to_string(),
+    };
+
+    let json = serde_json::to_string(&error_resp).unwrap();
+    assert!(json.contains("\"status\":400"));
+    assert!(json.contains("\"message\":\"Bad Request\""));
+  }
+
+  #[test]
+  fn test_api_error_resp_deserialization() {
+    let json = r#"{"status":404,"message":"Not Found"}"#;
+    let error_resp: ApiErrorResp = serde_json::from_str(json).unwrap();
+    assert_eq!(error_resp.status, 404);
+    assert_eq!(error_resp.message, "Not Found");
+  }
+}
