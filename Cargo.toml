@@ -2,6 +2,7 @@
 name = "server"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 
 [lib]
 path = "src/lib.rs"
@@ -11,10 +12,10 @@ path = "src/main.rs"
 name = "server"
 
 [dependencies]
-tokio = { version = "1.14.0", features = ["full"] }
-axum = "0.8.4"
-axum-extra = "0.10.1"
-hyper = "1.4.1"
+tokio = { version = "1.48.0", features = ["full"] }
+axum = "0.8.7"
+axum-extra = { version = "0.12.2", features = ["routing"] }
+hyper = "1.8.1"
 tower = { version = "0.5.0", features = [] }
 tower-http = { version = "0.6.6", features = [
   "trace",
@@ -24,7 +25,7 @@ tower-http = { version = "0.6.6", features = [
   "normalize-path",
 ] }
 
-sea-orm = { version = "1.1.12", features = [
+sea-orm = { version = "1.1.19", features = [
   "runtime-tokio-rustls",
   "sqlx-postgres",
   "macros",
@@ -33,25 +34,24 @@ sea-orm = { version = "1.1.12", features = [
   "with-uuid",
   "seaography",
 ] }
-
-sea-orm-migration = { version = "1.1.12", features = ["runtime-tokio-rustls"] }
+sea-orm-migration = { version = "1.1.19", features = ["runtime-tokio-rustls"] }
 
 tracing = "0.1.40"
-tracing-subscriber = { version = "0.3.18", features = ["json", "env-filter"] }
+tracing-subscriber = { version = "0.3.20", features = ["json", "env-filter"] }
 
-reqwest = { version = "0.12.20", default-features = false, features = [
+reqwest = { version = "0.12.24", default-features = false, features = [
   "json",
   "rustls-tls",
 ] }
-chrono = { version = "0.4.38", features = ["serde"] }
+chrono = { version = "0.4.42", features = ["serde"] }
 serde = { version = "1.0.210", features = ["derive"] }
-serde_json = "1.0.128"
-uuid = { version = "1.8.0", features = ["v7", "serde"] }
+serde_json = "1.0.145"
+uuid = { version = "1.18.1", features = ["v7", "serde"] }
 dotenvy = "0.15.7"
 
-anyhow = "1.0.98"
-thiserror = "2.0.12"
-utoipa = "5.3.1"
+anyhow = "1.0.100"
+thiserror = "2.0.17"
+utoipa = "5.4.0"
 utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
 utoipa-axum = "0.2.0"
 utoipauto = "0.2.0"
@@ -63,6 +63,6 @@ seaography = { version = "~1.1.4", features = [
 ] }
 async-graphql-axum = "7.0.17"
 async-graphql = "7.0.17"
-jsonwebtoken = "9.3.1"
+jsonwebtoken = { version = "10.2.0", features = ["rust_crypto"] }
 base64 = "0.22.1"
-bcrypt = "0.17.0"
+bcrypt = "0.17.1"
