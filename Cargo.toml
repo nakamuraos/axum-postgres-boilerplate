@@ -37,7 +37,7 @@ sea-orm = { version = "1.1.12", features = [
 sea-orm-migration = { version = "1.1.12", features = ["runtime-tokio-rustls"] }
 
 tracing = "0.1.40"
-tracing-subscriber = { version = "0.3.18", features = ["json", "env-filter"] }
+tracing-subscriber = { version = "0.3.20", features = ["json", "env-filter"] }
 
 reqwest = { version = "0.12.20", default-features = false, features = [
   "json",
